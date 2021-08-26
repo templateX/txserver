@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User
+from .models import User, Follow
 
 
 class UserCreationForm(forms.ModelForm):
@@ -47,6 +47,19 @@ class UserChangeForm(forms.ModelForm):
         fields = ('username', 'email', 'password', 'name', 'is_active', 'is_admin')
 
 
+class FollowingInline(admin.StackedInline):
+    verbose_name_plural = 'Following'
+    model = Follow
+    extra = 1
+    fk_name = 'follower'
+
+class FollowerInline(admin.StackedInline):
+    verbose_name_plural = 'Follower'
+    model = Follow
+    extra = 1
+    fk_name = 'user'
+
+
 class UserAdmin(BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
@@ -68,12 +81,17 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'name', 'password1', 'password2'),
+            'fields': ('username', 'email', 'name', 'password1', 'password2'),
         }),
     )
     search_fields = ('email', 'username')
     ordering = ('email', 'username')
     filter_horizontal = ()
+    inlines = [FollowerInline, FollowingInline]
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'follower', 'created_at')
 
 
 # Now register the new UserAdmin...

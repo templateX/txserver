@@ -26,6 +26,8 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name']
 
+    followers = models.ManyToManyField('self', through='Follow', through_fields=('user', 'follower'))
+
     class Meta:
         db_table = 'users'
 
@@ -47,3 +49,17 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followings')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'follows'
+        unique_together = ('user', 'follower')
+
+    def __str__(self) -> str:
+        return str(self.id)
