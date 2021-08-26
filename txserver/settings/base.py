@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'accounts',
     'core',
     'home',
+    'templates',
+    'tags',
+    'activities',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +72,7 @@ ROOT_URLCONF = 'txserver.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'www'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
