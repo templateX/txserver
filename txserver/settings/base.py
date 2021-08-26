@@ -32,18 +32,29 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Default Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Installed Apps
+    'corsheaders',
+    'rest_framework_simplejwt',
+
+    # Custom Apps
     'accounts',
     'core',
     'home',
 ]
 
 MIDDLEWARE = [
+    # Cors headers start (Top priority)
+    'corsheaders.middleware.CorsMiddleware',
+
+    # Default
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,6 +138,14 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'accounts.User'
 
-# GITHUB_CONNECT_ID = os.environ['GITHUB_CONNECT_ID']
-# GITHUB_CONNECT_SECRET = os.environ['GITHUB_CONNECT_SECRET']
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
