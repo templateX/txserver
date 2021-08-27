@@ -29,6 +29,10 @@ class Template(models.Model):
             self.slug = slugify(self.title)
         super(Template, self).save(*args, **kwargs)
 
+    @property
+    def like_count(self):
+        return self.likes.count()
+
 
 class Template_Tag(models.Model):
     template = models.ForeignKey(Template, on_delete=models.CASCADE)
