@@ -5,7 +5,7 @@ from .serializers import TemplateSearchSerializer, TemplateSerializer, TemplateC
 from .permissions import IsOwner, IsOwnerOrReadOnly
 from .exceptions import TemplateUnavailable, TagUnavailable, RepoUnavailable, InvalidData
 from templates.models import Template, Tag, Repo
-from v1.response import Success, SuccessCreate, SuccessUpdate, SuccessDelete, InvalidPermission
+from api.v1.response import Success, SuccessCreate, SuccessUpdate, SuccessDelete, InvalidPermission
 
 
 class TemplateSearch(generics.ListAPIView):

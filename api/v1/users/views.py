@@ -1,9 +1,8 @@
 from rest_framework import generics
-from rest_framework.views import APIView
 from rest_framework import permissions
 from .serializers import UserSerializer
 from accounts.models import User
-from v1.response import SuccessCreate, SuccessDelete
+from api.v1.response import SuccessCreate, SuccessDelete
 
 
 class UserDetail(generics.RetrieveAPIView):

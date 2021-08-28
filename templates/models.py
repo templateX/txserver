@@ -21,6 +21,7 @@ class Template(models.Model):
 
     class Meta:
         db_table = 'templates'
+        ordering = ('-created_at',)
 
     def __str__(self) -> str:
         return self.title

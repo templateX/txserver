@@ -53,6 +53,7 @@ class FollowingInline(admin.StackedInline):
     extra = 1
     fk_name = 'follower'
 
+
 class FollowerInline(admin.StackedInline):
     verbose_name_plural = 'Follower'
     model = Follow
@@ -68,7 +69,7 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('username', 'email', 'name', 'is_admin', 'date_joined')
+    list_display = ('id', 'username', 'email', 'name', 'is_admin', 'date_joined')
     list_filter = ('is_admin', 'date_joined', 'updated_at')
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
@@ -88,6 +89,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email', 'username')
     filter_horizontal = ()
     inlines = [FollowerInline, FollowingInline]
+
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):

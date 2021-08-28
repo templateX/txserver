@@ -52,7 +52,10 @@ class Login(APIView):
 class Profile(generics.RetrieveUpdateAPIView):
     serializer_class = AccountSerializer
     queryset = User.objects.all()
-    permissions = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    permissions = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
 
 
 class Me(APIView):
