@@ -30,6 +30,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = 'users'
+        ordering = ('-date_joined',)
 
     def __str__(self):
         return self.username
