@@ -1,6 +1,6 @@
 from re import template
 from rest_framework import serializers
-from templates.models import Template, Repo
+from templates.models import Template, Repo, Like
 from tags.models import Tag
 from accounts.models import User
 
@@ -61,7 +61,20 @@ class TemplateSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     like_count = serializers.ReadOnlyField()
+    liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Template
-        fields = ('id', 'user', 'title', 'description', 'slug', 'preview_link', 'tags', 'like_count', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'title', 'description', 'slug', 'preview_link', 'tags', 'like_count', 'liked', 'created_at', 'updated_at')
+
+    def get_liked(self, obj):
+        user = self.context.get('request').user
+        # print(user.template_liked.all())
+        if user.is_authenticated:
+            try:
+                user.template_liked.get(template=obj)
+                return True
+            except Like.DoesNotExist:
+                return False
+        else:
+            return False

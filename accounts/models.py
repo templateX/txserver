@@ -1,7 +1,7 @@
-from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
 from .managers import UserManager
+
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
@@ -49,6 +49,10 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def followers_count(self):
+        return self.followers.count()
 
 
 class Follow(models.Model):
