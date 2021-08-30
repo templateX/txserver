@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .managers import UserManager
+from follows.models import Follow
 
 
 class User(AbstractBaseUser):
@@ -26,7 +27,7 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name']
 
-    followers = models.ManyToManyField('self', through='Follow', through_fields=('user', 'follower'))
+    # followers = models.ManyToManyField('self', through='Follow', through_fields=('user', 'follower'))
 
     class Meta:
         db_table = 'users'
@@ -54,17 +55,3 @@ class User(AbstractBaseUser):
     @property
     def followers_count(self):
         return self.followers.count()
-
-
-class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followings')
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'follows'
-        unique_together = ('user', 'follower')
-
-    def __str__(self) -> str:
-        return str(self.id)

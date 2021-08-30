@@ -36,8 +36,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_following(self, obj):
         user = self.context.get('request').user
-        # print(user.is_authenticated)
-        # print(user.followings.get(user=obj))
         if user.is_authenticated:
             try:
                 user.followings.get(user=obj)

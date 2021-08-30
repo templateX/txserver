@@ -1,17 +1,21 @@
 from django.contrib import admin
-from .models import Template, Template_Tag, Repo, Like
+from .models import Template, TemplateTag, Repo, Like
+
 
 class TemplateTagInline(admin.StackedInline):
-    model = Template_Tag
+    model = TemplateTag
     extra = 0
+
 
 class RepoInline(admin.StackedInline):
     model = Repo
     extra = 0
 
+
 class LikeInline(admin.StackedInline):
     model = Like
     extra = 1
+
 
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
@@ -19,13 +23,16 @@ class TemplateAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     inlines = [TemplateTagInline, RepoInline, LikeInline]
 
-@admin.register(Template_Tag)
+
+@admin.register(TemplateTag)
 class TemplateTagAdmin(admin.ModelAdmin):
     list_display = ('id', 'template', 'tag')
 
+
 @admin.register(Repo)
 class RepoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'provider', 'link')
+    list_display = ('id', 'provider', 'url')
+
 
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):
