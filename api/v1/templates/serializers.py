@@ -25,38 +25,6 @@ class RepoSerializer(serializers.ModelSerializer):
         fields = ('id', 'provider', 'url')
 
 
-# class TemplateSearchSerializer(serializers.ModelSerializer):
-#     tags = TagSerializer(many=True)
-
-#     class Meta:
-#         model = Template
-#         fields = ('title', 'tags',)
-
-
-# class TemplateCreateSerializer(serializers.ModelSerializer):
-#     user = UserSerializer(read_only=True)
-#     tags = TagSerializer(many=True, read_only=False)
-#     repos = RepoSerializer(many=True, read_only=False)
-
-#     class Meta:
-#         model = Template
-#         fields = ('id', 'user', 'title', 'description', 'slug', 'preview_link', 'tags', 'repos', 'created_at', 'updated_at')
-
-#     def create(self, validated_data):
-#         tags = validated_data.pop('tags')
-#         repos = validated_data.pop('repos')
-
-#         instance = super().create(validated_data)
-#         for tag in tags:
-#             t = Tag.objects.get(**tag)
-#             TemplateTag.objects.create(template=instance, tag=t)
-
-#         for repo in repos:
-#             Repo.objects.create(template=instance, **repo)
-
-#         return instance
-
-
 class TemplateTagSerializer(serializers.ModelSerializer):
     tag_name = serializers.SerializerMethodField(read_only=True)
     tag_id = serializers.SerializerMethodField(read_only=True)
@@ -74,7 +42,7 @@ class TemplateTagSerializer(serializers.ModelSerializer):
 
 class TemplateSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    template_tags = TemplateTagSerializer(many=True, read_only=True)
+    template_tags = TemplateTagSerializer(many=True, read_only=False, required=False)
     tags = TagSerializer(many=True, write_only=True, required=False)
     repos = RepoSerializer(many=True, required=False)
 

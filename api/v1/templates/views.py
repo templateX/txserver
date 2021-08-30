@@ -1,28 +1,16 @@
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import TemplateSerializer
+from .serializers import RepoSerializer, TemplateSerializer
 # from .serializers import TemplateSearchSerializer, TemplateSerializer, TemplateCreateSerializer, RepoSerializer
 from .permissions import IsOwner, IsOwnerOrReadOnly
 from .exceptions import TemplateUnavailable, TagUnavailable, RepoUnavailable, InvalidData
 from templates.models import Template, Tag, Repo
 from api.v1.response import Success, SuccessCreate, SuccessUpdate, SuccessDelete, InvalidPermission
+from .mixins import TemplateLookUpMixin
 
 
-# class TemplateSearch(generics.ListAPIView):
-#     serializer_class = TemplateSearchSerializer
-#     queryset = Template.objects.all()
-
-#     def get_queryset(self):
-#         queryset = Template.objects.all()
-#         if 'tag' in self.request.query_params:
-#             tags = self.request.query_params['tag'].split(',')
-#             for tag in tags:
-#                 queryset = queryset.filter(tags__name=tag)
-#         return queryset
-
-
-class TemplateCreate(generics.CreateAPIView):
+class TemplateList(generics.ListCreateAPIView):
     serializer_class = TemplateSerializer
     queryset = Template.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
@@ -36,6 +24,30 @@ class TemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Template.objects.all()
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
 
+
+class TemplateRepoList(TemplateLookUpMixin, generics.ListCreateAPIView):
+    queryset = Repo.objects.all()
+    serializer_class = RepoSerializer
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+
+    def perform_create(self, serializer):
+        template = self.get_template()
+        return serializer.save(template=template)
+
+
+class TemplateRepoDetail(TemplateLookUpMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Repo.objects.all()
+    serializer_class = RepoSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        repo = super().get_object()
+        template = self.get_template()
+
+        if not repo.template == template:
+            raise InvalidPermission
+
+        return repo
 
 # class LikeView(APIView):
 #     permission_classes = (permissions.IsAuthenticated,)
