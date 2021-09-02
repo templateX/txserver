@@ -1,13 +1,14 @@
+from re import template
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import RepoSerializer, TemplateSerializer
-# from .serializers import TemplateSearchSerializer, TemplateSerializer, TemplateCreateSerializer, RepoSerializer
+from .serializers import RepoSerializer, TemplateSerializer, TemplateTagSerializer
 from .permissions import IsOwner, IsOwnerOrReadOnly
 from .exceptions import TemplateUnavailable, TagUnavailable, RepoUnavailable, InvalidData
-from templates.models import Template, Tag, Repo
+from templates.models import Template, Tag, Repo, TemplateTag, Like
 from api.v1.response import Success, SuccessCreate, SuccessUpdate, SuccessDelete, InvalidPermission
-from .mixins import TemplateLookUpMixin
+from .mixins import TemplateAuthLookUpMixin, TagLookUpMixin, TemplateLookUpMixin, LikeLookupMixix
+from api.v1.templates import serializers
 
 
 class TemplateList(generics.ListCreateAPIView):
@@ -25,7 +26,7 @@ class TemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
 
 
-class TemplateRepoList(TemplateLookUpMixin, generics.ListCreateAPIView):
+class TemplateRepoList(TemplateAuthLookUpMixin, generics.ListCreateAPIView):
     queryset = Repo.objects.all()
     serializer_class = RepoSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
@@ -35,7 +36,7 @@ class TemplateRepoList(TemplateLookUpMixin, generics.ListCreateAPIView):
         return serializer.save(template=template)
 
 
-class TemplateRepoDetail(TemplateLookUpMixin, generics.RetrieveUpdateDestroyAPIView):
+class TemplateRepoDetail(TemplateAuthLookUpMixin, generics.RetrieveUpdateDestroyAPIView):
     queryset = Repo.objects.all()
     serializer_class = RepoSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -49,94 +50,62 @@ class TemplateRepoDetail(TemplateLookUpMixin, generics.RetrieveUpdateDestroyAPIV
 
         return repo
 
-# class LikeView(APIView):
-#     permission_classes = (permissions.IsAuthenticated,)
 
-#     def get(self, request, pk):
-#         try:
-#             template = Template.objects.get(pk=pk)
-#             template.likes.add(request.user)
-#             raise Success
-#         except Template.DoesNotExist:
-#             raise TemplateUnavailable
+class TemplateTagList(TemplateAuthLookUpMixin, generics.ListAPIView):
+    queryset = TemplateTag.objects.all()
+    serializer_class = TemplateTagSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-
-# class LikeRemoveView(APIView):
-#     permission_classes = (permissions.IsAuthenticated,)
-
-#     def get(self, request, pk):
-#         try:
-#             template = Template.objects.get(pk=pk)
-#             template.likes.remove(request.user)
-#             raise Success
-#         except Template.DoesNotExist:
-#             raise TemplateUnavailable
+    def get_queryset(self):
+        template = self.get_template()
+        tags = TemplateTag.objects.filter(template=template, user=self.request.user)
+        return tags
 
 
-# class TemplateTag(APIView):
-#     permission_classes = (permissions.IsAuthenticated, IsOwner)
+class TemplateTagListCreate(TemplateAuthLookUpMixin, TagLookUpMixin, generics.CreateAPIView):
+    queryset = TemplateTag.objects.all()
+    serializer_class = TemplateTagSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-#     def get_object(self, pk):
-#         try:
-#             template = Template.objects.get(pk=pk)
-#             return template
-#         except Template.DoesNotExist:
-#             raise TemplateUnavailable
-
-#     def get_tag(self, tag_id):
-#         try:
-#             tag = Tag.objects.get(pk=tag_id)
-#             return tag
-#         except Tag.DoesNotExist:
-#             raise TagUnavailable
-
-#     def get(self, request, pk):
-#         template = self.get_object(pk)
-#         self.check_object_permissions(self.request, template)
-#         tag = self.get_tag(request.query_params['tag_id'])
-#         template.tags.add(tag)
-#         raise Success
-
-#     def delete(self, request, pk):
-#         template = self.get_object(pk)
-#         self.check_object_permissions(request, template)
-#         tag = self.get_tag(request.query_params['tag_id'])
-#         template.tags.remove(tag)
-#         raise Success
+    def create(self, request, *args, **kwargs):
+        template = self.get_template()
+        tag = self.get_tag()
+        template_tag = TemplateTag.objects.create(template=template, tag=tag)
+        serializer = TemplateTagSerializer(template_tag)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# class TemplateRepo(APIView):
-#     permission_classes = (permissions.IsAuthenticated, IsOwner)
+class TemplateTagDetail(TemplateAuthLookUpMixin, generics.RetrieveDestroyAPIView):
+    queryset = TemplateTag.objects.all()
+    serializer_class = TemplateTagSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-#     def get_object(self, pk):
-#         try:
-#             template = Template.objects.get(pk=pk)
-#             return template
-#         except Template.DoesNotExist:
-#             raise TemplateUnavailable
+    def get_object(self):
+        instance = super().get_object()
+        template = self.get_template()
 
-#     def get_repo(self, repo_id):
-#         try:
-#             repo = Repo.objects.get(pk=repo_id)
-#             return repo
-#         except Tag.DoesNotExist:
-#             raise RepoUnavailable
+        if not instance.template == template:
+            raise InvalidPermission
 
-#     def post(self, request, pk):
-#         template = self.get_object(pk)
-#         self.check_object_permissions(request, template)
-#         serializer = RepoSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save(template=template)
-#         else:
-#             raise InvalidData
-#         raise SuccessCreate
+        return instance
 
-#     def delete(self, request, pk):
-#         template = self.get_object(pk)
-#         self.check_object_permissions(request, template)
-#         repo = self.get_repo(request.query_params['repo_id'])
-#         if not repo.template == template:
-#             raise InvalidPermission
-#         repo.delete()
-#         raise SuccessDelete
+
+class TemplateLike(TemplateLookUpMixin, LikeLookupMixix, APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        template = self.get_template()
+        like = self.get_like(request.user, template)
+        if like is not None:
+            raise Success
+        Like.objects.create(template=template, user=request.user)
+        raise SuccessCreate
+
+    def delete(self, request, *args, **kwargs):
+        template = self.get_template()
+        like = self.get_like(request.user, template)
+        if like is not None:
+            like.delete()
+            raise SuccessDelete
+        raise Success
