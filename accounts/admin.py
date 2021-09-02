@@ -4,8 +4,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
-
-from .models import User, Follow
+from .models import User
+from follows.models import Follow
 
 
 class UserCreationForm(forms.ModelForm):
@@ -89,11 +89,6 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email', 'username')
     filter_horizontal = ()
     inlines = [FollowerInline, FollowingInline]
-
-
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'follower', 'created_at')
 
 
 # Now register the new UserAdmin...

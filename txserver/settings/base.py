@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 
     # Custom Apps
-    'accounts',
-    'templates',
-    'tags',
+    'accounts.apps.AccountsConfig',
+    'templates.apps.TemplatesConfig',
+    'tags.apps.TagsConfig',
+    'follows.apps.FollowsConfig',
+    'activities.apps.ActivitiesConfig'
 ]
 
 MIDDLEWARE = [

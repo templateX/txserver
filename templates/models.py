@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.fields import related
 from django.utils.text import slugify
 from django.conf import settings
 from tags.models import Tag
@@ -7,12 +8,12 @@ from tags.models import Tag
 class Template(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='templates')
     title = models.CharField(max_length=255)
-    slug = models.SlugField(blank=True, null=True)
+    slug = models.SlugField(blank=True, null=True, unique=True)
     description = models.TextField()
     preview_link = models.URLField(blank=True, null=True)
 
-    tags = models.ManyToManyField(Tag, blank=True, through='Template_Tag', through_fields=('template', 'tag'))
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, through='Like', through_fields=('template', 'user'))
+    # tags = models.ManyToManyField(Tag, blank=True, through='Template_Tag', through_fields=('template', 'tag'))
+    # likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, through='Like', through_fields=('template', 'user'))
 
     is_active = models.BooleanField(default=True)
 
@@ -36,9 +37,11 @@ class Template(models.Model):
         return self.likes.count()
 
 
-class Template_Tag(models.Model):
-    template = models.ForeignKey(Template, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+class TemplateTag(models.Model):
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='template_tags')
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tag_templates')
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'template_tags'
@@ -51,7 +54,9 @@ class Template_Tag(models.Model):
 class Repo(models.Model):
     template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='repos')
     provider = models.CharField(max_length=10, blank=True, null=True)
-    link = models.URLField()
+    url = models.URLField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return str(self.id)
@@ -61,8 +66,10 @@ class Repo(models.Model):
 
 
 class Like(models.Model):
-    template = models.ForeignKey(Template, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='template_liked')
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='template_likes')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_likes')
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'likes'
