@@ -7,21 +7,21 @@ from templates.models import Template, Repo
 from follows.models import Follow
 
 
-class TagSerializer(serializers.ModelSerializer):
+class UserTemplateTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
 
 
-class RepoSerializer(serializers.ModelSerializer):
+class UserTemplateRepoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repo
         fields = ('id', 'provider', 'url')
 
 
-class TemplateSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
-    repos = RepoSerializer(many=True, read_only=True)
+class UserTemplateSerializer(serializers.ModelSerializer):
+    tags = UserTemplateTagSerializer(many=True, read_only=True)
+    repos = UserTemplateRepoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Template
@@ -29,7 +29,7 @@ class TemplateSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    templates = TemplateSerializer(many=True, read_only=True)
+    templates = UserTemplateSerializer(many=True, read_only=True)
     following = serializers.SerializerMethodField()
 
     class Meta:

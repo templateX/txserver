@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Swagger UI
+    'drf_yasg',
+
     # Installed Apps
     'corsheaders',
     'rest_framework_simplejwt',
@@ -48,7 +51,6 @@ INSTALLED_APPS = [
     'templates.apps.TemplatesConfig',
     'tags.apps.TagsConfig',
     'follows.apps.FollowsConfig',
-    'activities.apps.ActivitiesConfig'
 ]
 
 MIDDLEWARE = [

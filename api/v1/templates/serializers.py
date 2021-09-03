@@ -12,7 +12,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class TemplateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'name')
@@ -40,7 +40,7 @@ class TemplateTagSerializer(serializers.ModelSerializer):
 
 
 class TemplateSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = TemplateUserSerializer(read_only=True)
     template_tags = TemplateTagSerializer(many=True, read_only=False, required=False)
     tags = TagSerializer(many=True, write_only=True, required=False)
     repos = RepoSerializer(many=True, required=False)
