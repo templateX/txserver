@@ -1,22 +1,37 @@
-from re import template
+from django.db.models import Q
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import RepoSerializer, TemplateSerializer, TemplateTagSerializer
 from .permissions import IsOwner, IsOwnerOrReadOnly
-from .exceptions import TemplateUnavailable, TagUnavailable, RepoUnavailable, InvalidData
-from templates.models import Template, Tag, Repo, TemplateTag, Like
-from api.v1.response import Success, SuccessCreate, SuccessUpdate, SuccessDelete, InvalidPermission
+from templates.models import Template, Repo, TemplateTag, Like
+from api.v1.response import Success, SuccessCreate, SuccessDelete, InvalidPermission
 from .mixins import TemplateAuthLookUpMixin, TagLookUpMixin, TemplateLookUpMixin, LikeLookupMixix
-from api.v1.templates import serializers
 
 
-class TemplateList(generics.ListCreateAPIView):
+class TemplateSearch(generics.ListAPIView):
+    serializer_class = TemplateSerializer
+    queryset = Template.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if 'q' in self.request.query_params:
+            query = self.request.query_params['q']
+            queryset = queryset.filter(Q(title__contains=query) | Q(slug__contains=query))
+        return queryset
+
+
+# creates and lists templates
+class TemplateCreate(generics.CreateAPIView):
     serializer_class = TemplateSerializer
     queryset = Template.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        return Template.objects.all()
+
     def perform_create(self, serializer):
+        # assigned authenticated user to the template
         serializer.save(user=self.request.user)
 
 
