@@ -124,3 +124,7 @@ class TemplateLike(TemplateLookUpMixin, LikeLookupMixix, APIView):
             like.delete()
             raise SuccessDelete
         raise Success
+
+
+# class TemplateBookmark(TemplateLookUpMixin, APIView):
+#     pass

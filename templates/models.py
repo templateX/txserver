@@ -1,11 +1,12 @@
+import uuid
 from django.db import models
-from django.db.models.fields import related
 from django.utils.text import slugify
 from django.conf import settings
 from tags.models import Tag
 
 
 class Template(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='templates')
     title = models.CharField(max_length=255)
     slug = models.SlugField(blank=True, null=True, unique=True)
@@ -38,6 +39,7 @@ class Template(models.Model):
 
 
 class TemplateTag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='template_tags')
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tag_templates')
 
@@ -52,6 +54,7 @@ class TemplateTag(models.Model):
 
 
 class Repo(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='repos')
     provider = models.CharField(max_length=10, blank=True, null=True)
     url = models.URLField()
@@ -66,6 +69,7 @@ class Repo(models.Model):
 
 
 class Like(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='template_likes')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_likes')
 

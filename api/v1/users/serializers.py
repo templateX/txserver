@@ -1,8 +1,6 @@
-from django.contrib.auth.models import AnonymousUser
-from django.db.models import fields
 from tags.models import Tag
 from rest_framework import serializers
-from accounts.models import Follow, User
+from accounts.models import User
 from templates.models import Template, Repo
 from follows.models import Follow
 

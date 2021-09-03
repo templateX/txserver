@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'templates.apps.TemplatesConfig',
     'tags.apps.TagsConfig',
     'follows.apps.FollowsConfig',
+    'bookmarks.apps.BookmarksConfig',
 ]
 
 MIDDLEWARE = [
